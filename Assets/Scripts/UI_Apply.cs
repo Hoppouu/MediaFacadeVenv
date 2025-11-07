@@ -3,12 +3,12 @@ using System;
 
 public class UI_Apply : MonoBehaviour
 {
-    public void Apply()
+    public void ApplyChanges()
     {
-        Settings.Apply();
+        Settings.ApplyChanges();
     }
-    public void VideoApply()
+    public void ApplyVideos()
     {
-        Settings.VideoApply();
+        Settings.ApplyVideos();
     }
 }

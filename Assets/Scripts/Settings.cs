@@ -28,15 +28,15 @@ public static class Settings
         ScreenSetting temp = new ScreenSetting();
         temp.resolution = new Resolution() { width = width_, height = height_ };
         temp.videoURL = "";
-        temp.state = true;
+        temp.stateScreen = true;
 
         return temp;
     }
 
     public static void SetPlayerHeight(int height) { PlayerHeight = height; }
     public static void SetPlayerFOV(int fov) { PlayerFOV = fov; }
-    public static void Apply() { OnApply.Invoke(); }
-    public static void VideoApply() { OnVideoApply.Invoke(); }
+    public static void ApplyChanges() { OnApply.Invoke(); }
+    public static void ApplyVideos() { OnVideoApply.Invoke(); }
     public static void FOVApply() { OnFOV.Invoke(); }
 
 }
@@ -44,5 +44,7 @@ public class ScreenSetting
 {
     public Resolution resolution;
     public string videoURL;
-    public bool state;
+    public bool stateScreen;
+    public bool stateNDI;
+    public string ndiName;
 }

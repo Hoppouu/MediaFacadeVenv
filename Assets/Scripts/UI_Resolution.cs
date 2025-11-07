@@ -1,4 +1,10 @@
+using Klak.Ndi;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Emit;
 using UnityEditor;
+using UnityEditor.U2D;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,9 +15,15 @@ public class UI_Resolution : MonoBehaviour
     public InputField right_width, right_height;
     public InputField bottom_width, bottom_height;
     public Toggle front, left, right, bottom;
-    public void Start()
+    public Toggle ndi;
+    public Text ndi_text;
+    public Dropdown[] NDI_dropdown;
+
+    private int[] ndi_dropdown_idx = { 0 };
+
+    public void Awake()
     {
-        Settings.OnApply += Apply;
+        ndi_dropdown_idx = new int[NDI_dropdown.Length];
     }
     public void OnEnable()
     {
@@ -26,8 +38,11 @@ public class UI_Resolution : MonoBehaviour
         
         bottom_width.text = Settings.FLOOR.resolution.width.ToString();
         bottom_height.text = Settings.FLOOR.resolution.height.ToString();
+
+        SetStateNDI(ndi.isOn);
+        StartCoroutine(LoadNdiSources(1.0f));
     }
-    public void Apply()
+    public void OnClickApply()
     {
         int.TryParse(front_width.text, out int _frontWidth);
         int.TryParse(front_height.text, out int _frontHeight);
@@ -51,9 +66,67 @@ public class UI_Resolution : MonoBehaviour
         Settings.RIGHT.resolution = _right;
         Settings.FLOOR.resolution = _bottom;
 
-        Settings.MAIN.state = front.isOn;
-        Settings.LEFT.state = left.isOn;
-        Settings.RIGHT.state = right.isOn;
-        Settings.FLOOR.state = bottom.isOn;
+        Settings.MAIN.stateScreen = front.isOn;
+        Settings.LEFT.stateScreen = left.isOn;
+        Settings.RIGHT.stateScreen = right.isOn;
+        Settings.FLOOR.stateScreen = bottom.isOn;
+
+        for (int i = 0; i < NDI_dropdown.Length; i++)
+        {
+            ndi_dropdown_idx[i] = NDI_dropdown[i].value;
+        }
+
+
+        Settings.MAIN.ndiName = NDI_dropdown[0].options[ndi_dropdown_idx[0]].text;
+        Settings.LEFT.ndiName = NDI_dropdown[1].options[ndi_dropdown_idx[1]].text;
+        Settings.RIGHT.ndiName = NDI_dropdown[2].options[ndi_dropdown_idx[2]].text;
+        Settings.FLOOR.ndiName = NDI_dropdown[3].options[ndi_dropdown_idx[3]].text;
+    }
+
+    public void NDIToggle()
+    {
+        Settings.MAIN.stateNDI = ndi.isOn;
+        Settings.LEFT.stateNDI = ndi.isOn;
+        Settings.RIGHT.stateNDI = ndi.isOn;
+        Settings.FLOOR.stateNDI = ndi.isOn;
+
+        SetStateNDI(ndi.isOn);
+    }
+
+    public void SetStateNDI(bool state)
+    {
+        if (state)  ndi_text.text = "NDI ON";
+        else        ndi_text.text = "NDI OFF";
+
+        foreach (var dropdown in NDI_dropdown)
+        {
+            dropdown.interactable = state;
+        }
+    }
+    private IEnumerator LoadNdiSources(float interval)
+    {
+        while(true)
+        {
+            List<string> names = NdiFinder.sourceNames.ToList();
+            names.Insert(0, "None");
+            for (int i = 0; i < NDI_dropdown.Length; i++)
+            {
+                NDI_dropdown[i].ClearOptions();
+                NDI_dropdown[i].AddOptions(names);
+
+                if (NDI_dropdown[i].options.Count <= ndi_dropdown_idx[i])
+                {
+                    ndi_dropdown_idx[i] = 0;
+                }
+                NDI_dropdown[i].value = ndi_dropdown_idx[i];
+
+                if (names.Count == 0)
+                {
+                    NDI_dropdown[i].AddOptions(new List<string> { "NDI 소스 없음" });
+                }
+            }
+            yield return new WaitForSeconds(interval);
+        }
+
     }
 }
