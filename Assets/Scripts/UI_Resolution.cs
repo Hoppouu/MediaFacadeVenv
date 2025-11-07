@@ -62,7 +62,7 @@ public class UI_Resolution : MonoBehaviour
         Resolution _bottom = new Resolution() { width = _bottomWidth, height = _bottomHeight };
 
         Settings.MAIN.resolution = _front;
-        Settings.LEFT.resolution = _right;
+        Settings.LEFT.resolution = _left;
         Settings.RIGHT.resolution = _right;
         Settings.FLOOR.resolution = _bottom;
 
